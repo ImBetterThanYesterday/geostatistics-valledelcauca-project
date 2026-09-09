@@ -1,0 +1,4 @@
+"id","fuente","localizacion","temperatura","radiacion"
+"punto_01","NASA/POWER Source Native Resolution Daily Data ","Location: latitude  3.275   longitude -77.475 ","T2M                   MERRA-2 Temperature at 2 Meters (C) ","ALLSKY_SFC_SW_DWN     CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (MJ/m^2/day) "
+"punto_02","NASA/POWER Source Native Resolution Daily Data ","Location: latitude  4.825   longitude -76.225 ","T2M                   MERRA-2 Temperature at 2 Meters (C) ","ALLSKY_SFC_SW_DWN     CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (MJ/m^2/day) "
+"punto_03","NASA/POWER Source Native Resolution Daily Data ","Location: latitude  3.525   longitude -76.525 ","T2M                   MERRA-2 Temperature at 2 Meters (C) ","ALLSKY_SFC_SW_DWN     CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (MJ/m^2/day) "

@@ -1,0 +1,17 @@
+"anio","dias","inicio","fin","temp_crudo","rad_crudo","salida","celdas_soporte"
+2010,365,"2010-01-01","2010-12-31","T2M_2010_LST.nc","RAD_2010_LST.nc","power_reconstruido_valle_2010.tif",686
+2011,365,"2011-01-01","2011-12-31","T2M_2011_LST.nc","RAD_2011_LST.nc","power_reconstruido_valle_2011.tif",686
+2012,366,"2012-01-01","2012-12-31","T2M_2012_LST.nc","RAD_2012_LST.nc","power_reconstruido_valle_2012.tif",686
+2013,365,"2013-01-01","2013-12-31","T2M_2013_LST.nc","RAD_2013_LST.nc","power_reconstruido_valle_2013.tif",686
+2014,365,"2014-01-01","2014-12-31","T2M_2014_LST.nc","RAD_2014_LST.nc","power_reconstruido_valle_2014.tif",686
+2015,365,"2015-01-01","2015-12-31","T2M_2015_LST.nc","RAD_2015_LST.nc","power_reconstruido_valle_2015.tif",686
+2016,366,"2016-01-01","2016-12-31","T2M_2016_LST.nc","RAD_2016_LST.nc","power_reconstruido_valle_2016.tif",686
+2017,365,"2017-01-01","2017-12-31","T2M_2017_LST.nc","RAD_2017_LST.nc","power_reconstruido_valle_2017.tif",686
+2018,365,"2018-01-01","2018-12-31","T2M_2018_LST.nc","RAD_2018_LST.nc","power_reconstruido_valle_2018.tif",686
+2019,365,"2019-01-01","2019-12-31","T2M_2019_LST.nc","RAD_2019_LST.nc","power_reconstruido_valle_2019.tif",686
+2020,366,"2020-01-01","2020-12-31","T2M_2020_LST.nc","RAD_2020_LST.nc","power_reconstruido_valle_2020.tif",686
+2021,365,"2021-01-01","2021-12-31","T2M_2021_LST.nc","RAD_2021_LST.nc","power_reconstruido_valle_2021.tif",686
+2022,365,"2022-01-01","2022-12-31","T2M_2022_LST.nc","RAD_2022_LST.nc","power_reconstruido_valle_2022.tif",686
+2023,365,"2023-01-01","2023-12-31","T2M_2023_LST.nc","RAD_2023_LST.nc","power_reconstruido_valle_2023.tif",686
+2024,366,"2024-01-01","2024-12-31","T2M_2024_LST.nc","RAD_2024_LST.nc","power_reconstruido_valle_2024.tif",686
+2025,365,"2025-01-01","2025-12-31","T2M_2025_LST.nc","RAD_2025_LST.nc","power_reconstruido_valle_2025.tif",686

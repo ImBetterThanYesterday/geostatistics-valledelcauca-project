@@ -1,0 +1,4 @@
+"escenario","RMSE","MAE"
+"bilineal_sin_correccion",0.255881178257004,0.20126703287584
+"restar_sesgo_fijo_por_celda",0.0797022358383034,0.0294918347219108
+"restar_sesgo_medio_por_semana",0.244083229277455,0.196579402324997

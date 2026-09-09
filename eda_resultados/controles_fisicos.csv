@@ -1,0 +1,5 @@
+"regla","casos"
+"precipitacion < 0",0
+"temperatura fuera de [-10,45]",0
+"radiacion fuera de [0,45]",0
+"altitud no finita",0

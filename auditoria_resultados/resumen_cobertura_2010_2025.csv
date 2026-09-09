@@ -1,0 +1,7 @@
+"variable","criterio","validos.min","validos.mediana","validos.max","NA_interno_original.min","NA_interno_original.mediana","NA_interno_original.max","NA_control_calidad.min","NA_control_calidad.mediana","NA_control_calidad.max","Dato_fuera_Valle.min","Dato_fuera_Valle.mediana","Dato_fuera_Valle.max"
+"precipitacion","centro",686,686,686,  0,  0,  0,0,0,0,103,103,103
+"radiacion","centro", 27, 27, 27,659,659,659,0,0,0,  4,  4,  4
+"temperatura","centro",122,122,122,564,564,564,0,0,0, 10, 10, 10
+"precipitacion","interseccion",787,787,787,  0,  0,  0,2,2,2,  0,  0,  0
+"radiacion","interseccion", 31, 31, 31,758,758,758,0,0,0,  0,  0,  0
+"temperatura","interseccion",132,132,132,657,657,657,0,0,0,  0,  0,  0

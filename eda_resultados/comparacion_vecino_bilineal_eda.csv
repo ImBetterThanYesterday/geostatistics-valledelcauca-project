@@ -1,0 +1,3 @@
+"variable","MAE_vecino_vs_bilineal","RMSE_vecino_vs_bilineal","correlacion"
+"temperatura",1.19423913026496,1.46942166966077,0.898503007631197
+"radiacion",0.498663647150039,0.670161347015578,0.909661572165826

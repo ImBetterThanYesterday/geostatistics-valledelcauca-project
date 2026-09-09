@@ -1,0 +1,13 @@
+"variable","n_total","n_validos","n_na","pct_validos"
+"id_celda",570752,570752,0,100
+"celda_raster",570752,570752,0,100
+"x",570752,570752,0,100
+"y",570752,570752,0,100
+"altitud_m",570752,570752,0,100
+"anio",570752,570752,0,100
+"semana",570752,570752,0,100
+"precipitacion_mm",570752,570752,0,100
+"temperatura_vecino_c",570752,570752,0,100
+"temperatura_bilineal_c",570752,570752,0,100
+"radiacion_vecino_mj_m2_dia",570752,570752,0,100
+"radiacion_bilineal_mj_m2_dia",570752,570752,0,100

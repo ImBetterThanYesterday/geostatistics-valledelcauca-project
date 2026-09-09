@@ -1,0 +1,4 @@
+"id","celda","lon","lat","archivo","url"
+"punto_01",1260,-77.475,3.275,"punto_01_2024.csv","https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,ALLSKY_SFC_SW_DWN&community=AG&longitude=-77.475&latitude=3.275&start=20240101&end=20241231&format=CSV&time-standard=LST"
+"punto_02",138,-76.225,4.825,"punto_02_2024.csv","https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,ALLSKY_SFC_SW_DWN&community=AG&longitude=-76.225&latitude=4.825&start=20240101&end=20241231&format=CSV&time-standard=LST"
+"punto_03",1094,-76.525,3.525,"punto_03_2024.csv","https://power.larc.nasa.gov/api/temporal/daily/point?parameters=T2M,ALLSKY_SFC_SW_DWN&community=AG&longitude=-76.525&latitude=3.525&start=20240101&end=20241231&format=CSV&time-standard=LST"

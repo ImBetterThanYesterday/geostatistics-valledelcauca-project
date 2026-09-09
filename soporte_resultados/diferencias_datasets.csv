@@ -1,0 +1,8 @@
+"dataset","fuente","archivo","bandas_archivo","bandas_de_variable","soporte_temporal","periodo","resolucion_grados","pixeles_validos_semana","cobertura_pct"
+"Precipitacion semanal","CHIRPS","chirps_semanal_valle_2024.tif",52,52,"semana-anio","2010-2025",0.0500000007450581,686,100
+"Temperatura semanal","NASA POWER","power_semanal_valle_2024.tif",104,52,"semana-anio","2010-2025",0.0500000007450581,122,17.7842565597668
+"Radiacion semanal","NASA POWER","power_semanal_valle_2024.tif",104,52,"semana-anio","2010-2025",0.0500000007450581,27,3.93586005830904
+"Altitud","SRTM","altitud_valle.tif",1,1,"estatico","estatico",0.0500000007450581,686,100
+"Climatologia precipitacion","CHIRPS","chirps_climatologia_semanal_valle.tif",52,52,"semana climatologica","promedio 2010-2025",0.0500000007450581,686,100
+"Climatologia temperatura","NASA POWER","power_temp_climatologia_semanal_valle.tif",52,52,"semana climatologica","promedio 2010-2025",0.0500000007450581,122,17.7842565597668
+"Climatologia radiacion","NASA POWER","power_radiacion_climatologia_semanal_valle.tif",52,52,"semana climatologica","promedio 2010-2025",0.0500000007450581,27,3.93586005830904

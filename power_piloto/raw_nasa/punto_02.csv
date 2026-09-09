@@ -1,0 +1,41 @@
+-BEGIN HEADER-
+NASA/POWER Source Native Resolution Daily Data 
+Dates (month/day/year): 02/20/2024 through 03/20/2024 in LST
+Location: latitude  4.825   longitude -76.225 
+elevation from MERRA-2: Average for 0.5 x 0.625 degree lat/lon region = 1019.26 meters
+The value for missing source data that cannot be computed or is outside of the sources availability range: -999 
+parameter(s): 
+T2M                   MERRA-2 Temperature at 2 Meters (C) 
+ALLSKY_SFC_SW_DWN     CERES SYN1deg All Sky Surface Shortwave Downward Irradiance (MJ/m^2/day) 
+-END HEADER-
+YEAR,DOY,T2M,ALLSKY_SFC_SW_DWN
+2024,51,24.15,13.13
+2024,52,22.14,14.03
+2024,53,21.63,19.1
+2024,54,22.21,20.25
+2024,55,22.05,18.37
+2024,56,21.53,15.05
+2024,57,22.12,14.87
+2024,58,21.33,18.13
+2024,59,23.49,15.52
+2024,60,23.37,12.26
+2024,61,21.74,11.03
+2024,62,21.64,14.64
+2024,63,22.24,12.77
+2024,64,22.36,17.18
+2024,65,23.4,15.02
+2024,66,23.44,11.68
+2024,67,23.51,13.19
+2024,68,22.57,11.48
+2024,69,23.4,13.91
+2024,70,24.28,14.79
+2024,71,24.39,10.69
+2024,72,24.31,15.49
+2024,73,24.42,13.72
+2024,74,24.49,13.62
+2024,75,23.68,12.08
+2024,76,23.81,15.23
+2024,77,23.87,15.46
+2024,78,24.13,16.01
+2024,79,23.12,12.94
+2024,80,22.51,14.38
