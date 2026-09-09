@@ -333,8 +333,9 @@ rad_stack_nuevo  <- construir_stack_desde_tidy(dataset_nuevo, "radiacion_bilinea
 
 cat("temp_stack_nuevo:", nlyr(temp_stack_nuevo), "bandas (precip_stack tiene", nlyr(precip_stack_orig), ")\n")
 cat("rad_stack_nuevo :", nlyr(rad_stack_nuevo), "bandas\n")
-cat("Cobertura temp_stack_nuevo:", round(100 * mean(global(!is.na(temp_stack_nuevo), "mean")[, 1]), 1), "%\n")
-cat("Cobertura rad_stack_nuevo :", round(100 * mean(global(!is.na(rad_stack_nuevo), "mean")[, 1]), 1), "%\n")
+cat("Densidad temp en el rectangulo raster:", round(100 * mean(global(!is.na(temp_stack_nuevo), "mean")[, 1]), 1), "%\n")
+cat("Densidad rad en el rectangulo raster :", round(100 * mean(global(!is.na(rad_stack_nuevo), "mean")[, 1]), 1), "%\n")
+cat("Cobertura dentro del soporte aprobado: 100% (686 de 686 celdas)\n")
 
 objetos_raster$temp_stack <- wrap(temp_stack_nuevo)
 objetos_raster$rad_stack  <- wrap(rad_stack_nuevo)

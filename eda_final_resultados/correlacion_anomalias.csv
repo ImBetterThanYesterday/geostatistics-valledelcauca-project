@@ -1,0 +1,4 @@
+"","anom_precipitacion_mm","anom_temperatura_c","anom_radiacion_mj_m2_dia"
+"anom_precipitacion_mm",1,-0.226888673130142,-0.131169377226487
+"anom_temperatura_c",-0.226888673130142,1,0.26732030068973
+"anom_radiacion_mj_m2_dia",-0.131169377226487,0.26732030068973,1

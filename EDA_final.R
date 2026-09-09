@@ -125,6 +125,108 @@ print(round(matriz_cor, 3))
 write.csv(matriz_cor, file.path(DIR_RESULTADOS, "correlacion_pearson_pooled.csv"))
 
 ################################################################
+# 2.1) Anomalias respecto a la climatologia propia 2010-2025
+################################################################
+
+# Una anomalia positiva indica un valor superior al promedio historico de esa
+# misma celda y banda semanal. No es una derivada matematica.
+dataset$anom_precipitacion_mm <- dataset$precipitacion_mm - dataset$clim_precipitacion_mm
+dataset$anom_temperatura_c <- dataset$temperatura_bilineal_c - dataset$clim_temperatura_bilineal_c
+dataset$anom_radiacion_mj_m2_dia <- dataset$radiacion_bilineal_mj_m2_dia -
+  dataset$clim_radiacion_bilineal_mj_m2_dia
+
+variables_anom <- c("anom_precipitacion_mm", "anom_temperatura_c",
+                    "anom_radiacion_mj_m2_dia")
+
+cat("\n========== ANOMALIAS CLIMATICAS ==========" , "\n")
+print(summary(dataset[, variables_anom]))
+matriz_cor_anom <- cor(dataset[, variables_anom], use="complete.obs")
+cat("\nCorrelacion entre anomalias (variacion respecto a lo esperado):\n")
+print(round(matriz_cor_anom, 3))
+
+################################################################
+# 2.2) Correlaciones en tres escalas
+################################################################
+
+vars_base <- c("precipitacion_mm", "temperatura_bilineal_c",
+               "radiacion_bilineal_mj_m2_dia", "altitud_m")
+
+# Escala espacial: cada celda aporta una observacion (promedio 2010-2025).
+datos_espaciales <- aggregate(dataset[, vars_base],
+                              by=list(id_celda=dataset$id_celda), FUN=mean)
+cor_espacial <- cor(datos_espaciales[, vars_base], use="complete.obs")
+
+# Escala temporal regional: una observacion por anio y banda semanal.
+datos_temporales <- aggregate(dataset[, vars_base[1:3]],
+                              by=list(anio=dataset$anio, semana=dataset$semana), FUN=mean)
+cor_temporal <- cor(datos_temporales[, vars_base[1:3]], use="complete.obs")
+
+cat("\n========== CORRELACION ESPACIAL (686 promedios por celda) ==========\n")
+print(round(cor_espacial, 3))
+cat("\n========== CORRELACION TEMPORAL REGIONAL (832 bandas) ==========\n")
+print(round(cor_temporal, 3))
+
+cor_tres_escalas <- rbind(
+  data.frame(escala="Pooled espacio-tiempo", predictor=vars_base[-1],
+             correlacion=matriz_cor["precipitacion_mm", vars_base[-1]]),
+  data.frame(escala="Espacial: promedio por celda", predictor=vars_base[-1],
+             correlacion=cor_espacial["precipitacion_mm", vars_base[-1]]),
+  data.frame(escala="Temporal: promedio regional", predictor=vars_base[2:3],
+             correlacion=cor_temporal["precipitacion_mm", vars_base[2:3]]),
+  data.frame(escala="Anomalias", predictor=variables_anom[2:3],
+             correlacion=matriz_cor_anom["anom_precipitacion_mm", variables_anom[2:3]])
+)
+print(cor_tres_escalas, row.names=FALSE)
+
+################################################################
+# 2.3) Transformaciones candidatas de precipitacion
+################################################################
+
+asimetria <- function(x) {
+  x <- x[is.finite(x)]; m <- mean(x); s <- sd(x)
+  mean((x-m)^3) / s^3
+}
+
+transformaciones <- data.frame(
+  transformacion=c("Original", "Raiz cuadrada", "log1p"),
+  media=c(mean(dataset$precipitacion_mm), mean(sqrt(dataset$precipitacion_mm)),
+          mean(log1p(dataset$precipitacion_mm))),
+  sd=c(sd(dataset$precipitacion_mm), sd(sqrt(dataset$precipitacion_mm)),
+       sd(log1p(dataset$precipitacion_mm))),
+  asimetria=c(asimetria(dataset$precipitacion_mm),
+              asimetria(sqrt(dataset$precipitacion_mm)),
+              asimetria(log1p(dataset$precipitacion_mm)))
+)
+cat("\n========== TRANSFORMACIONES DE PRECIPITACION ==========\n")
+print(transformaciones, row.names=FALSE)
+cat("Menor asimetria absoluta no selecciona por si sola el modelo; la decision final\n")
+cat("se tomara comparando residuales y validacion predictiva.\n")
+
+################################################################
+# 2.4) Colinealidad preliminar entre covariables
+################################################################
+
+predictores_vif <- c("altitud_m", "temperatura_bilineal_c",
+                     "radiacion_bilineal_mj_m2_dia", "clim_precipitacion_mm",
+                     "clim_temperatura_bilineal_c", "clim_radiacion_bilineal_mj_m2_dia")
+
+# VIF calculado con regresiones auxiliares. Se usa una muestra reproducible para
+# evitar ajustar seis regresiones sobre filas espacio-temporales repetidas.
+set.seed(2026)
+idx_vif <- sample.int(nrow(dataset), min(100000L, nrow(dataset)))
+datos_vif <- dataset[idx_vif, predictores_vif]
+vif <- sapply(predictores_vif, function(v) {
+  otros <- setdiff(predictores_vif, v)
+  ajuste <- lm(reformulate(otros, response=v), data=datos_vif)
+  1 / (1-summary(ajuste)$r.squared)
+})
+tabla_vif <- data.frame(variable=names(vif), VIF=as.numeric(vif),
+                        diagnostico=ifelse(vif>=10,"Alto",ifelse(vif>=5,"Revisar","Aceptable")))
+cat("\n========== VIF PRELIMINAR ==========\n")
+print(tabla_vif, row.names=FALSE)
+cat("El VIF es diagnostico, no una regla automatica para eliminar variables.\n")
+
+################################################################
 # 3) Panel de precipitación
 ################################################################
 
@@ -330,6 +432,37 @@ write.csv(resumen_eda, file.path(DIR_RESULTADOS, "estadisticas_descriptivas.csv"
 write.csv(as.data.frame.matrix(tabla_meses), file.path(DIR_RESULTADOS, "cobertura_meses_aproximados.csv"))
 write.csv(fila_max[,c("id_celda","anio","semana","x","y","precipitacion_mm")],
           file.path(DIR_RESULTADOS, "evento_maximo_precipitacion.csv"), row.names=FALSE)
+write.csv(matriz_cor_anom, file.path(DIR_RESULTADOS, "correlacion_anomalias.csv"))
+write.csv(cor_espacial, file.path(DIR_RESULTADOS, "correlacion_espacial_promedios.csv"))
+write.csv(cor_temporal, file.path(DIR_RESULTADOS, "correlacion_temporal_regional.csv"))
+write.csv(cor_tres_escalas, file.path(DIR_RESULTADOS, "correlaciones_tres_escalas.csv"), row.names=FALSE)
+write.csv(transformaciones, file.path(DIR_RESULTADOS, "transformaciones_precipitacion.csv"), row.names=FALSE)
+write.csv(tabla_vif, file.path(DIR_RESULTADOS, "vif_preliminar.csv"), row.names=FALSE)
+
+# Paneles nuevos visibles en RStudio.
+dibujar_transformaciones <- function() {
+  par(mfrow=c(1,3), mar=c(4.5,4.2,3,1))
+  hist(dataset$precipitacion_mm, breaks=40, col="steelblue", border="white",
+       main=paste0("Original\nasimetria = ",round(transformaciones$asimetria[1],2)), xlab="mm")
+  hist(sqrt(dataset$precipitacion_mm), breaks=40, col="darkgreen", border="white",
+       main=paste0("Raiz cuadrada\nasimetria = ",round(transformaciones$asimetria[2],2)), xlab="sqrt(mm)")
+  hist(log1p(dataset$precipitacion_mm), breaks=40, col="darkorange", border="white",
+       main=paste0("log1p\nasimetria = ",round(transformaciones$asimetria[3],2)), xlab="log(1 + mm)")
+}
+
+dibujar_anomalias <- function() {
+  par(mfrow=c(1,3), mar=c(4.5,4.2,3,1))
+  hist(dataset$anom_precipitacion_mm, breaks=40, col="steelblue", border="white",
+       main="Anomalia precipitacion", xlab="mm frente a climatologia")
+  hist(dataset$anom_temperatura_c, breaks=40, col="firebrick", border="white",
+       main="Anomalia temperatura", xlab="grados C frente a climatologia")
+  hist(dataset$anom_radiacion_mj_m2_dia, breaks=40, col="orange", border="white",
+       main="Anomalia radiacion", xlab="MJ/m2/dia frente a climatologia")
+}
+
+dibujar_transformaciones()
+dibujar_anomalias()
+par(mfrow=c(1,1))
 
 # Tres visuales de síntesis en PNG; los paneles completos siguen visibles en RStudio.
 png(file.path(DIR_RESULTADOS, "precipitacion_resumen.png"), width=1600, height=1200, res=160)
@@ -346,10 +479,19 @@ axis(1,at=1:n,labels=nombres_matriz,las=2,tick=FALSE); axis(2,at=1:n,labels=rev(
 for(fila in 1:n) for(columna in 1:n) text(columna,n-fila+1,sprintf("%.2f",matriz_cor[fila,columna]),col=if(abs(matriz_cor[fila,columna])>=.6) "white" else "black",font=2)
 box(); dev.off()
 
+png(file.path(DIR_RESULTADOS, "transformaciones_precipitacion.png"), width=1800, height=650, res=160)
+dibujar_transformaciones(); dev.off()
+png(file.path(DIR_RESULTADOS, "anomalias_climaticas.png"), width=1800, height=650, res=160)
+dibujar_anomalias(); dev.off()
+
 writeLines(c("EDA FINAL - RESUMEN", paste("Fecha:",Sys.time()),
              paste("Dataset:",nrow(dataset),"filas x",ncol(dataset),"columnas"),
              "Soporte: 686 celdas x 16 anios x 52 bandas", "Nulos: 0 en las variables analizadas",
              "Nota: las correlaciones pooled mezclan variacion espacial y temporal; no prueban causalidad.",
+             "Se agregaron correlaciones espacial, temporal y de anomalias.",
+             paste("Transformacion con menor asimetria absoluta:", transformaciones$transformacion[which.min(abs(transformaciones$asimetria))]),
+             paste("Predictores con VIF >= 5:", paste(tabla_vif$variable[tabla_vif$VIF>=5], collapse=", ")),
+             "Nota: transformacion y variables definitivas se decidiran con residuales y validacion.",
              "Nota: los extremos de Tukey no se eliminan automaticamente, especialmente en precipitacion."),
            file.path(DIR_RESULTADOS,"resumen_eda.txt"))
 cat("Resultados guardados en:", DIR_RESULTADOS, "\n")

@@ -598,3 +598,29 @@ Estado: pendiente / aprobada / rechazada / sustituida
   climatología. Existe una sola celda con altitud -2,917 m, valor plausible en
   una zona costera y dentro del rango de control.
 - Los scripts ahora usan rutas reproducibles y guardan tablas, resúmenes y PNG.
+# H-018 — Consolidación de la entrega hasta EDA descriptivo
+
+Se definieron dos únicos puntos de entrada visibles:
+`01_Preparar_Verificar_Dataset.R` y `EDA_final.R`. Los módulos 00, 01, 05, 06 y
+07 se trasladaron a `_soporte_reproducibilidad/` porque siguen siendo evidencia
+necesaria de construcción, pero no deben confundirse con los archivos finales.
+Los pilotos 02–04, `08_EDA_Soporte_Comun.R`, `EDA.R` y sus resultados
+intermedios se trasladaron a `_archivo_historico/` por estar reemplazados o por
+incluir análisis espacial que aún no corresponde iniciar.
+
+No se eliminó de forma irreversible evidencia científica. La carpeta histórica
+permite recuperar los experimentos, pero queda fuera de la ruta normal de
+ejecución. El alcance actual termina en EDA descriptivo; Moran, semivariogramas
+y modelos espaciales quedan explícitamente pendientes.
+
+## H-019 — Anomalías, escalas, transformación y colinealidad
+
+Se amplió `EDA_final.R` sin iniciar análisis espacial. Se incorporaron anomalías
+respecto a climatologías, correlaciones separadas en escala espacial, temporal y
+de anomalías, comparación de precipitación original/raíz/log1p y VIF
+preliminar. La relación precipitación–temperatura cambió de 0,879 en la escala
+espacial a −0,369 en la temporal y −0,227 entre anomalías. Raíz cuadrada redujo
+mejor la asimetría descriptiva. Temperatura y climatología de temperatura
+presentaron VIF mayor que 20, por lo que no se incluirán juntas sin comparación
+formal. Ninguno de estos diagnósticos constituye todavía selección definitiva
+de modelo.

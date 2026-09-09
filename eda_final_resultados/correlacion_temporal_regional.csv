@@ -1,0 +1,4 @@
+"","precipitacion_mm","temperatura_bilineal_c","radiacion_bilineal_mj_m2_dia"
+"precipitacion_mm",1,-0.368577572581763,-0.224572721383259
+"temperatura_bilineal_c",-0.368577572581763,1,0.338542626129083
+"radiacion_bilineal_mj_m2_dia",-0.224572721383259,0.338542626129083,1

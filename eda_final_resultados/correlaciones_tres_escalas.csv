@@ -1,0 +1,11 @@
+"escala","predictor","correlacion"
+"Pooled espacio-tiempo","temperatura_bilineal_c",0.452589249123783
+"Pooled espacio-tiempo","radiacion_bilineal_mj_m2_dia",-0.222379929395331
+"Pooled espacio-tiempo","altitud_m",-0.394044009933757
+"Espacial: promedio por celda","temperatura_bilineal_c",0.878840774861937
+"Espacial: promedio por celda","radiacion_bilineal_mj_m2_dia",-0.642564308436677
+"Espacial: promedio por celda","altitud_m",-0.67112913430781
+"Temporal: promedio regional","temperatura_bilineal_c",-0.368577572581763
+"Temporal: promedio regional","radiacion_bilineal_mj_m2_dia",-0.224572721383259
+"Anomalias","anom_temperatura_c",-0.226888673130142
+"Anomalias","anom_radiacion_mj_m2_dia",-0.131169377226487
