@@ -1,11 +1,23 @@
 ###################################################################
 # EDA por variable - dataset final
-# Visualización en RStudio, sin guardar archivos
+# Visualización en RStudio y resultados reproducibles en archivos
 ###################################################################
 
 library(terra)
 
-dataset <- readRDS("dataset_eda/dataset_final_7_variables.rds")
+buscar_raiz <- function() {
+  candidatos <- unique(normalizePath(c(getwd(), file.path(getwd(), ".."),
+                                        file.path(getwd(), "../..")), mustWork=FALSE))
+  ok <- vapply(candidatos, function(p) dir.exists(file.path(p, "datos_proyecto_1")) &&
+                 dir.exists(file.path(p, "avance_team_proyecto1")), logical(1))
+  if (!any(ok)) stop("No se encontro la raiz. Abra Proyecto1 en RStudio.")
+  candidatos[which(ok)[1]]
+}
+RAIZ_PROYECTO <- buscar_raiz()
+DIR_SCRIPT <- file.path(RAIZ_PROYECTO, "avance_team_proyecto1", "reinicio_desde_cero")
+DIR_RESULTADOS <- file.path(DIR_SCRIPT, "eda_final_resultados")
+dir.create(DIR_RESULTADOS, recursive=TRUE, showWarnings=FALSE)
+dataset <- readRDS(file.path(DIR_SCRIPT, "dataset_eda", "dataset_final_7_variables.rds"))
 str(dataset)
 
 variables <- c(
@@ -57,7 +69,14 @@ rango_max <- c(700, 45, 45, 6000, 700, 45, 45)
 
 for (i in seq_along(variables)) {
   v <- variables[i]
-  x <- dataset[[v]]
+  # Evitar inflar n, atipicos y negativos por repeticion: altitud se resume en
+  # 686 celdas; climatologias en 686 x 52; variables dinamicas en todas las filas.
+  base_resumen <- if (v == "altitud_m") {
+    dataset[!duplicated(dataset$id_celda), ]
+  } else if (grepl("^clim_", v)) {
+    dataset[!duplicated(dataset[, c("id_celda", "semana")]), ]
+  } else dataset
+  x <- base_resumen[[v]]
   
   cat("\n====================================================\n")
   cat(nombres[i], "|", unidades[i], "\n")
@@ -85,8 +104,15 @@ for (i in seq_along(variables)) {
       sprintf("(%.2f%%)\n", 100 * mean(atipicos, na.rm = TRUE)))
   
   if (v != "precipitacion_mm") {
-    r <- cor(x, dataset$precipitacion_mm, use = "complete.obs")
-    cat("Pearson con precipitación:", round(r, 3), "\n")
+    # Para variables reducidas se compara contra precipitacion en el mismo
+    # nivel de agregacion, no contra las 570752 filas repetidas.
+    if (v == "altitud_m") {
+      p_comp <- aggregate(precipitacion_mm ~ id_celda, dataset, mean)$precipitacion_mm
+    } else if (grepl("^clim_", v)) {
+      p_comp <- base_resumen$clim_precipitacion_mm
+    } else p_comp <- dataset$precipitacion_mm
+    r <- cor(x, p_comp, use = "complete.obs")
+    cat("Pearson con precipitación en nivel comparable:", round(r, 3), "\n")
   }
 }
 
@@ -96,6 +122,7 @@ for (i in seq_along(variables)) {
 
 matriz_cor <- cor(dataset[, variables], use = "pairwise.complete.obs")
 print(round(matriz_cor, 3))
+write.csv(matriz_cor, file.path(DIR_RESULTADOS, "correlacion_pearson_pooled.csv"))
 
 ################################################################
 # 3) Panel de precipitación
@@ -285,3 +312,44 @@ par(mfrow = c(1, 1), mar = c(5.1, 4.1, 4.1, 2.1),
     oma = c(0, 0, 0, 0), cex.main = 1.2)
 
 cat("\nEDA terminado. Consulta los paneles anteriores con las flechas de Plots.\n")
+
+# Tablas auditables. Tukey describe valores extremos; no implica eliminarlos.
+resumen_eda <- do.call(rbind, lapply(seq_along(variables), function(i) {
+  v <- variables[i]
+  d <- if (v == "altitud_m") dataset[!duplicated(dataset$id_celda), ] else
+    if (grepl("^clim_", v)) dataset[!duplicated(dataset[,c("id_celda","semana")]), ] else dataset
+  x <- d[[v]]; q <- quantile(x, c(.25,.75), na.rm=TRUE); ric <- diff(q)
+  data.frame(variable=v, unidad=unidades[i], n=length(x), n_na=sum(is.na(x)),
+             media=mean(x,na.rm=TRUE), sd=sd(x,na.rm=TRUE), minimo=min(x,na.rm=TRUE),
+             p25=q[1], mediana=median(x,na.rm=TRUE), p75=q[2], maximo=max(x,na.rm=TRUE),
+             n_negativos=sum(x<0,na.rm=TRUE), n_ceros=sum(x==0,na.rm=TRUE),
+             n_extremos_tukey=sum(x<q[1]-1.5*ric | x>q[2]+1.5*ric,na.rm=TRUE),
+             nivel_analisis=if(v=="altitud_m") "686 celdas" else if(grepl("^clim_",v)) "686 celdas x 52 semanas" else "espacio-tiempo completo")
+}))
+write.csv(resumen_eda, file.path(DIR_RESULTADOS, "estadisticas_descriptivas.csv"), row.names=FALSE)
+write.csv(as.data.frame.matrix(tabla_meses), file.path(DIR_RESULTADOS, "cobertura_meses_aproximados.csv"))
+write.csv(fila_max[,c("id_celda","anio","semana","x","y","precipitacion_mm")],
+          file.path(DIR_RESULTADOS, "evento_maximo_precipitacion.csv"), row.names=FALSE)
+
+# Tres visuales de síntesis en PNG; los paneles completos siguen visibles en RStudio.
+png(file.path(DIR_RESULTADOS, "precipitacion_resumen.png"), width=1600, height=1200, res=160)
+par(mfrow=c(2,2), mar=c(4.5,4.5,3,3))
+hist(dataset$precipitacion_mm, breaks=40, col=colores[1], border="white", main="Precipitacion", xlab=unidades[1])
+boxplot(dataset$precipitacion_mm, col=colores[1], main="Boxplot", ylab=unidades[1])
+plot(r_precip, main="Promedio espacial", col=hcl.colors(50,"Blues",rev=TRUE))
+plot(r_max, main=paste("Maximo: banda",semana_max,"-",anio_max), col=hcl.colors(50,"Blues",rev=TRUE)); points(fila_max$x,fila_max$y,pch=4,col="red",lwd=2)
+dev.off()
+
+png(file.path(DIR_RESULTADOS, "matriz_correlacion.png"), width=1500, height=1300, res=170)
+par(mar=c(9,10,4,2)); image(1:n,1:n,t(matriz_cor[n:1,]),zlim=c(-1,1),col=paleta,axes=FALSE,xlab="",ylab="",main="Correlacion Pearson (pooled)")
+axis(1,at=1:n,labels=nombres_matriz,las=2,tick=FALSE); axis(2,at=1:n,labels=rev(nombres_matriz),las=2,tick=FALSE)
+for(fila in 1:n) for(columna in 1:n) text(columna,n-fila+1,sprintf("%.2f",matriz_cor[fila,columna]),col=if(abs(matriz_cor[fila,columna])>=.6) "white" else "black",font=2)
+box(); dev.off()
+
+writeLines(c("EDA FINAL - RESUMEN", paste("Fecha:",Sys.time()),
+             paste("Dataset:",nrow(dataset),"filas x",ncol(dataset),"columnas"),
+             "Soporte: 686 celdas x 16 anios x 52 bandas", "Nulos: 0 en las variables analizadas",
+             "Nota: las correlaciones pooled mezclan variacion espacial y temporal; no prueban causalidad.",
+             "Nota: los extremos de Tukey no se eliminan automaticamente, especialmente en precipitacion."),
+           file.path(DIR_RESULTADOS,"resumen_eda.txt"))
+cat("Resultados guardados en:", DIR_RESULTADOS, "\n")

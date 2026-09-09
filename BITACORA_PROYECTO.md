@@ -583,3 +583,18 @@ Estado: pendiente / aprobada / rechazada / sustituida
 - Por el uso de asistencia generativa deberá prepararse el documento separado de
   prompts exigido. Esta bitácora no lo sustituye; debe conservarse/exportarse la
   conversación original.
+
+## H-018 — Verificación integrada y EDA final reproducible (2026-09-09)
+
+- Se confirmó el soporte completo: 686 celdas, 16 años, 52 bandas y 570.752 filas.
+- El dataset final contiene 15 columnas y no presenta valores ausentes.
+- Altitud y precipitación coinciden exactamente con los insumos de referencia.
+- Temperatura bilineal supera a vecino en la comparación 2024-banda 10.
+- En radiación, vecino reproduce la muestra entregada; ambas versiones se
+  conservan para comparación posterior mediante validación de modelos.
+- Se corrigió la cobertura histórica: 17,8% y 3,9% dentro de las 686 celdas;
+  9,1% y 2,1% usaban incorrectamente todo el rectángulo como denominador.
+- Se corrigió el EDA para no contar 832 veces cada altitud ni 16 veces cada
+  climatología. Existe una sola celda con altitud -2,917 m, valor plausible en
+  una zona costera y dentro del rango de control.
+- Los scripts ahora usan rutas reproducibles y guardan tablas, resúmenes y PNG.

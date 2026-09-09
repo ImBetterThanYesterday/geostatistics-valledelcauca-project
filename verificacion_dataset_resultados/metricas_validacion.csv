@@ -1,0 +1,7 @@
+"variable","n","correlacion","mae"
+"Altitud",686,1,0
+"Precipitacion 2024-S10",686,1,0
+"Temperatura vecino 2024-S10",122,0.978678629856783,0.370383106294225
+"Temperatura bilineal 2024-S10",122,0.995740479064543,0.170566355595823
+"Radiacion vecino 2024-S10",27,1,0
+"Radiacion bilineal 2024-S10",27,0.993568101148483,0.12891564545808

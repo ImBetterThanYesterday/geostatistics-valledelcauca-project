@@ -1,0 +1,7 @@
+EDA FINAL - RESUMEN
+Fecha: 2026-09-09 02:08:58.534248
+Dataset: 570752 filas x 16 columnas
+Soporte: 686 celdas x 16 anios x 52 bandas
+Nulos: 0 en las variables analizadas
+Nota: las correlaciones pooled mezclan variacion espacial y temporal; no prueban causalidad.
+Nota: los extremos de Tukey no se eliminan automaticamente, especialmente en precipitacion.

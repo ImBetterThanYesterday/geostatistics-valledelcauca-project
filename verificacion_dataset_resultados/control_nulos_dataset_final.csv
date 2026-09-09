@@ -1,0 +1,16 @@
+"variable","n_na"
+"id_celda",0
+"semana",0
+"celda_raster",0
+"x",0
+"y",0
+"altitud_m",0
+"anio",0
+"precipitacion_mm",0
+"temperatura_vecino_c",0
+"temperatura_bilineal_c",0
+"radiacion_vecino_mj_m2_dia",0
+"radiacion_bilineal_mj_m2_dia",0
+"clim_precipitacion_mm",0
+"clim_temperatura_bilineal_c",0
+"clim_radiacion_bilineal_mj_m2_dia",0

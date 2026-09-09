@@ -1,0 +1,5 @@
+"variable","fuente","resolucion_nativa_aprox_km","resolucion_grilla_comun_grados","resolucion_grilla_comun_km","metodo_para_llegar_a_grilla_comun"
+"Precipitacion","CHIRPS","5.57",0.0500000007450565,5.57,"Ninguno (ya viene en la resolucion objetivo)"
+"Altitud","SRTM","~0.03 (30 m; luego agregada)",0.0500000007450565,5.57,"Agregacion (de muy fina, 30 m, hacia la grilla objetivo)"
+"Temperatura","NASA POWER","~69 x 56 (0.625 x 0.5 grados)",0.0500000005405408,5.57,"Interpolacion bilineal (de gruesa, ~55 km, hacia la grilla fina)"
+"Radiacion","NASA POWER","~111 x 111 (1 x 1 grado)",0.0500000005405408,5.57,"Interpolacion bilineal (de gruesa, ~55 km, hacia la grilla fina)"
