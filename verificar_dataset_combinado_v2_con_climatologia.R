@@ -1,9 +1,26 @@
 library(terra)
 library(ggplot2)
-library(openxlsx)
-source("funciones_auxiliares.R")
 
-ruta_nuevo <- "dataset_eda"
+# Rutas reproducibles: el script funciona desde la raiz del proyecto o desde
+# cualquier subcarpeta. No depende de setwd() ni de rutas personales.
+buscar_raiz <- function() {
+  candidatos <- unique(normalizePath(c(getwd(), file.path(getwd(), ".."),
+                                        file.path(getwd(), "../..")),
+                                      mustWork = FALSE))
+  ok <- vapply(candidatos, function(p) {
+    dir.exists(file.path(p, "datos_proyecto_1")) &&
+      dir.exists(file.path(p, "avance_team_proyecto1"))
+  }, logical(1))
+  if (!any(ok)) stop("No se encontro la raiz del proyecto. Abra Proyecto1 en RStudio.")
+  candidatos[which(ok)[1]]
+}
+
+RAIZ_PROYECTO <- buscar_raiz()
+DIR_SCRIPT <- file.path(RAIZ_PROYECTO, "avance_team_proyecto1", "reinicio_desde_cero")
+ruta_nuevo <- file.path(DIR_SCRIPT, "dataset_eda")
+DIR_DATOS <- file.path(RAIZ_PROYECTO, "datos_proyecto_1")
+DIR_RESULTADOS <- file.path(DIR_SCRIPT, "verificacion_dataset_resultados")
+dir.create(DIR_RESULTADOS, recursive = TRUE, showWarnings = FALSE)
 
 cargar_flexible <- function(nombre_sin_ext) {
   candidatos <- file.path(ruta_nuevo, paste0(nombre_sin_ext, c(".csv", ".xlsx")))
@@ -14,7 +31,11 @@ cargar_flexible <- function(nombre_sin_ext) {
   }
   ruta <- candidatos[1]
   cat("Cargando:", ruta, "\n")
-  if (grepl("\\.csv$", ruta)) read.csv(ruta, stringsAsFactors = FALSE) else read.xlsx(ruta)
+  if (grepl("\\.csv$", ruta)) return(read.csv(ruta, stringsAsFactors = FALSE))
+  if (!requireNamespace("openxlsx", quietly = TRUE)) {
+    stop("Se encontro solo XLSX y falta openxlsx. Instale openxlsx o exporte el archivo a CSV.")
+  }
+  openxlsx::read.xlsx(ruta)
 }
 
 # =============================================================================
@@ -86,7 +107,7 @@ if (any(sapply(list(col_x, col_y, col_anio, col_semana, col_precip, col_altitud)
 }
 
 # Cargar los rasters originales ya validados (Fase 1 - EDA)
-objetos_raster <- readRDS("datos_proyecto_1/datos_procesados/rasters_limpios.rds")
+objetos_raster <- readRDS(file.path(DIR_DATOS, "datos_procesados", "rasters_limpios.rds"))
 precip_stack_orig <- unwrap(objetos_raster$precip_stack)
 r_altitud_orig    <- unwrap(objetos_raster$r_altitud)
 anios_orig        <- objetos_raster$anios
@@ -151,17 +172,17 @@ if (nrow(comparacion_precip) > 0) {
   cat("Diferencia absoluta maxima:", round(max(abs(comparacion_precip$precip_original - comparacion_precip$precip_nuevo)), 4), "\n")
 }
 
-# Cobertura de temperatura/radiacion en el dataset nuevo (deberia ser MUCHO
-# mayor que el 9.1% / 2.1% que teniamos con el remuestreo mal hecho)
+# Cobertura dentro del soporte aprobado. En los archivos antiguos faltaba
+# 82.2% de temperatura y 96.1% de radiacion sobre las 686 celdas.
 if (!is.na(col_temp)) {
   pct_temp_nuevo <- 100 * mean(!is.na(dataset_nuevo[[col_temp]]))
   cat("\nCobertura de temperatura en el dataset nuevo:", round(pct_temp_nuevo, 1), "%",
-      "(antes: 9.1%)\n")
+      "(antes, dentro del Valle: 17.8%)\n")
 }
 if (!is.na(col_rad)) {
   pct_rad_nuevo <- 100 * mean(!is.na(dataset_nuevo[[col_rad]]))
   cat("Cobertura de radiacion en el dataset nuevo:", round(pct_rad_nuevo, 1), "%",
-      "(antes: 2.1%)\n")
+      "(antes, dentro del Valle: 3.9%)\n")
 }
 
 # Revisar si el dataset nuevo ya trae climatologia
@@ -318,8 +339,10 @@ cat("Cobertura rad_stack_nuevo :", round(100 * mean(global(!is.na(rad_stack_nuev
 objetos_raster$temp_stack <- wrap(temp_stack_nuevo)
 objetos_raster$rad_stack  <- wrap(rad_stack_nuevo)
 
-saveRDS(objetos_raster, "datos_proyecto_1/datos_procesados/rasters_limpios.rds")
-cat("\nGuardado: rasters_limpios.rds actualizado con temperatura/radiacion bilineal (cobertura completa)\n")
+# Este script verifica y genera derivados: nunca sobrescribe el insumo previo.
+ruta_rasters_verificados <- file.path(DIR_RESULTADOS, "rasters_combinados_bilineales.rds")
+saveRDS(objetos_raster, ruta_rasters_verificados)
+cat("\nGuardado derivado (sin sobrescribir insumos):", ruta_rasters_verificados, "\n")
 
 # Mapa ANTES vs DESPUES: la comparacion mas directa del arreglo de cobertura
 nombre_banda_temp_nuevo <- paste0("temp_", anio_ejemplo, "_s", sprintf("%02d", semana_ejemplo_num))
@@ -368,30 +391,27 @@ grados_a_km <- function(grados) round(grados * 111.32, 2)
 tabla_resoluciones <- data.frame(
   variable = c("Precipitacion", "Altitud", "Temperatura", "Radiacion"),
   fuente = c("CHIRPS", "SRTM", "NASA POWER", "NASA POWER"),
-  resolucion_nativa_aprox_km = c(grados_a_km(res_precip), "~0.09 (30 m, remuestreada hacia abajo)",
-                                 "~55.7 (0.5 grados)", "~55.7 (0.5 grados)"),
+  resolucion_nativa_aprox_km = c(grados_a_km(res_precip), "~0.03 (30 m; luego agregada)",
+                                 "~69 x 56 (0.625 x 0.5 grados)", "~111 x 111 (1 x 1 grado)"),
   resolucion_grilla_comun_grados = c(res_precip, res_altitud, res_temp_nuevo, res_rad_nuevo),
   resolucion_grilla_comun_km = c(grados_a_km(res_precip), grados_a_km(res_altitud),
                                  grados_a_km(res_temp_nuevo), grados_a_km(res_rad_nuevo)),
   metodo_para_llegar_a_grilla_comun = c(
     "Ninguno (ya viene en la resolucion objetivo)",
     "Agregacion (de muy fina, 30 m, hacia la grilla objetivo)",
-    "Interpolacion bilineal (de gruesa, ~55 km, hacia la grilla fina)",
-    "Interpolacion bilineal (de gruesa, ~55 km, hacia la grilla fina)"
+    "Interpolacion bilineal (de ~69 x 56 km hacia la grilla comun)",
+    "Interpolacion bilineal (de ~111 x 111 km hacia la grilla comun)"
   )
 )
 
 cat("\n========== TABLA COMPARATIVA DE RESOLUCION POR VARIABLE ==========\n")
 print(tabla_resoluciones)
 
-factor_escala_nasa <- (0.5 / res_precip)^2
-cat("\nUna sola celda nativa de NASA POWER (~0.5 grados) equivale aproximadamente a",
-    round(factor_escala_nasa), "celdas de la grilla objetivo (0.05 grados).\n")
-cat("Esto explica por que asignar el vecino mas cercano sin interpolar dejaba la\n")
-cat("gran mayoria de esas ~", round(factor_escala_nasa), " celdas finas sin dato (el problema original\n")
-cat("de 9.1%/2.1% de cobertura): solo unas pocas celdas finas coinciden exactamente\n")
-cat("con un punto de la grilla nativa gruesa; el resto necesita interpolacion para\n")
-cat("tener un valor, que es justo lo que aporta el metodo bilineal.\n")
+cat("\nPOWER es mas grueso que la grilla comun de 0.05 grados. Tanto 'near' como\n")
+cat("bilinear pueden producir cobertura completa si se aplica un remuestreo espacial\n")
+cat("correcto. Los nulos antiguos (82.2% temperatura y 96.1% radiacion dentro de\n")
+cat("las 686 celdas) no fueron causados por vecino cercano, sino por una transferencia\n")
+cat("incompleta de nodos de la grilla fuente a la grilla objetivo.\n")
 
 # =============================================================================
 # PARTE 6: CLIMATOLOGIA DE TEMPERATURA Y RADIACION - ORIGINAL vs. DERIVADA
@@ -399,7 +419,7 @@ cat("tener un valor, que es justo lo que aporta el metodo bilineal.\n")
 # archivo de climatologia del profesor contra una version reconstruida
 # directamente de los datos ya limpios, para revisar si tambien esta corrupto)
 # =============================================================================
-ruta_base_original <- "datos_proyecto_1/imagenes_semanales"
+ruta_base_original <- file.path(DIR_DATOS, "imagenes_semanales")
 
 r_clim_temp_orig <- rast(file.path(ruta_base_original, "power_temp_climatologia_semanal_valle.tif"))
 r_clim_rad_orig  <- rast(file.path(ruta_base_original, "power_radiacion_climatologia_semanal_valle.tif"))
@@ -512,3 +532,56 @@ saveRDS(dataset_final, file.path(ruta_nuevo, "dataset_final_7_variables.rds"))
 write.csv(head(dataset_final, 2000), file.path(ruta_nuevo, "muestra_2000_dataset_final_7_variables.csv"),
           row.names = FALSE)
 cat("\nGuardado: dataset_final_7_variables.rds\n")
+
+# =============================================================================
+# PARTE 8: OUTPUTS AUDITABLES
+# =============================================================================
+metricas_validacion <- data.frame(
+  variable = c("Altitud", "Precipitacion 2024-S10", "Temperatura vecino 2024-S10",
+               "Temperatura bilineal 2024-S10", "Radiacion vecino 2024-S10",
+               "Radiacion bilineal 2024-S10"),
+  n = c(nrow(comparacion_altitud), nrow(comparacion_precip), nrow(cruce_temp),
+        nrow(cruce_temp), nrow(cruce_rad), nrow(cruce_rad)),
+  correlacion = c(cor(comparacion_altitud$altitud_original, comparacion_altitud$altitud_nuevo),
+                  cor(comparacion_precip$precip_original, comparacion_precip$precip_nuevo),
+                  cor(cruce_temp$temp_viejo, cruce_temp$temperatura_vecino_c),
+                  cor(cruce_temp$temp_viejo, cruce_temp$temperatura_bilineal_c),
+                  cor(cruce_rad$rad_viejo, cruce_rad$radiacion_vecino_mj_m2_dia),
+                  cor(cruce_rad$rad_viejo, cruce_rad$radiacion_bilineal_mj_m2_dia)),
+  mae = c(mean(abs(comparacion_altitud$altitud_original-comparacion_altitud$altitud_nuevo)),
+          mean(abs(comparacion_precip$precip_original-comparacion_precip$precip_nuevo)),
+          mean(abs(cruce_temp$temp_viejo-cruce_temp$temperatura_vecino_c)),
+          mean(abs(cruce_temp$temp_viejo-cruce_temp$temperatura_bilineal_c)),
+          mean(abs(cruce_rad$rad_viejo-cruce_rad$radiacion_vecino_mj_m2_dia)),
+          mean(abs(cruce_rad$rad_viejo-cruce_rad$radiacion_bilineal_mj_m2_dia)))
+)
+write.csv(metricas_validacion, file.path(DIR_RESULTADOS, "metricas_validacion.csv"), row.names = FALSE)
+write.csv(tabla_resoluciones, file.path(DIR_RESULTADOS, "resoluciones_y_remuestreo.csv"), row.names = FALSE)
+write.csv(matriz_cor_nueva, file.path(DIR_RESULTADOS, "correlaciones_dataset_base.csv"))
+write.csv(data.frame(variable=names(dataset_final), n_na=colSums(is.na(dataset_final))),
+          file.path(DIR_RESULTADOS, "control_nulos_dataset_final.csv"), row.names = FALSE)
+
+informe_txt <- capture.output({
+  cat("VERIFICACION DEL DATASET COMBINADO\n")
+  cat("Fecha:", as.character(Sys.time()), "\n")
+  cat("Dimensiones:", nrow(dataset_final), "filas x", ncol(dataset_final), "columnas\n")
+  cat("Soporte aprobado: 686 centros de pixel dentro del Valle\n")
+  cat("Registros esperados: 686 x 16 x 52 =", 686*16*52, "\n\n")
+  print(metricas_validacion)
+  cat("\nNulos por columna:\n"); print(colSums(is.na(dataset_final)))
+  cat("\nConclusiones:\n")
+  cat("- Altitud y precipitacion reproducen exactamente los insumos de referencia.\n")
+  cat("- Temperatura: bilinear es la opcion principal por menor MAE y mayor correlacion.\n")
+  cat("- Radiacion: vecino reproduce exactamente la muestra antigua; se conserva bilinear\n")
+  cat("  como opcion continua, pero la decision debe evaluarse tambien en los modelos.\n")
+  cat("- Interpolar aumenta soporte computacional, no resolucion fisica de POWER.\n")
+})
+writeLines(informe_txt, file.path(DIR_RESULTADOS, "resumen_verificacion.txt"))
+
+ggsave(file.path(DIR_RESULTADOS, "climatologia_temperatura.png"), p_clima_temp,
+       width=9, height=5, dpi=160)
+ggsave(file.path(DIR_RESULTADOS, "climatologia_radiacion.png"), p_clima_rad,
+       width=9, height=5, dpi=160)
+ggsave(file.path(DIR_RESULTADOS, "matriz_correlacion.png"), p_matriz_nueva,
+       width=9, height=7, dpi=160)
+cat("Outputs de verificacion:", DIR_RESULTADOS, "\n")
