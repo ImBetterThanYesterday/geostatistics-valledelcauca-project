@@ -1,7 +1,11 @@
 EDA FINAL - RESUMEN
-Fecha: 2026-09-09 02:08:58.534248
-Dataset: 570752 filas x 16 columnas
+Fecha: 2026-09-09 02:45:13.866681
+Dataset: 570752 filas x 19 columnas
 Soporte: 686 celdas x 16 anios x 52 bandas
 Nulos: 0 en las variables analizadas
 Nota: las correlaciones pooled mezclan variacion espacial y temporal; no prueban causalidad.
+Se agregaron correlaciones espacial, temporal y de anomalias.
+Transformacion con menor asimetria absoluta: Raiz cuadrada
+Predictores con VIF >= 5: temperatura_bilineal_c, clim_temperatura_bilineal_c
+Nota: transformacion y variables definitivas se decidiran con residuales y validacion.
 Nota: los extremos de Tukey no se eliminan automaticamente, especialmente en precipitacion.

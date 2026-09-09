@@ -1,5 +1,5 @@
 VERIFICACION DEL DATASET COMBINADO
-Fecha: 2026-09-09 02:07:55.390407 
+Fecha: 2026-09-09 02:32:58.09747 
 Dimensiones: 570752 filas x 15 columnas
 Soporte aprobado: 686 centros de pixel dentro del Valle
 Registros esperados: 686 x 16 x 52 = 570752 
@@ -13,22 +13,16 @@ Registros esperados: 686 x 16 x 52 = 570752
 6   Radiacion bilineal 2024-S10  27   0.9935681 0.1289156
 
 Nulos por columna:
-                         id_celda                            semana 
-                                0                                 0 
-                     celda_raster                                 x 
-                                0                                 0 
-                                y                         altitud_m 
-                                0                                 0 
-                             anio                  precipitacion_mm 
-                                0                                 0 
-             temperatura_vecino_c            temperatura_bilineal_c 
-                                0                                 0 
-       radiacion_vecino_mj_m2_dia      radiacion_bilineal_mj_m2_dia 
-                                0                                 0 
-            clim_precipitacion_mm       clim_temperatura_bilineal_c 
-                                0                                 0 
-clim_radiacion_bilineal_mj_m2_dia 
-                                0 
+                         id_celda                            semana                      celda_raster 
+                                0                                 0                                 0 
+                                x                                 y                         altitud_m 
+                                0                                 0                                 0 
+                             anio                  precipitacion_mm              temperatura_vecino_c 
+                                0                                 0                                 0 
+           temperatura_bilineal_c        radiacion_vecino_mj_m2_dia      radiacion_bilineal_mj_m2_dia 
+                                0                                 0                                 0 
+            clim_precipitacion_mm       clim_temperatura_bilineal_c clim_radiacion_bilineal_mj_m2_dia 
+                                0                                 0                                 0 
 
 Conclusiones:
 - Altitud y precipitacion reproducen exactamente los insumos de referencia.
