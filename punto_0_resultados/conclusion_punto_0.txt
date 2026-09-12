@@ -1,0 +1,7 @@
+PUNTO 0 — CONCLUSION
+Los NetCDF POWER 2010-2025 estan completos por dia.
+Los productos entregados usan 52 bloques fijos de 7 dias (364 dias).
+El remanente anual no se imputara ni se agregara a la banda 52.
+Vecino y bilinear se compararan como escenarios con las mismas particiones.
+No se calculara el variograma definitivo antes de seleccionar el modelo de media.
+Pendiente: aprobar el diseno exacto de validacion.

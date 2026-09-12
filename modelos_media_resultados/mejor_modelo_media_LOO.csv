@@ -1,0 +1,2 @@
+"modelo","respuesta","n_parametros","MAE","RMSE","sesgo","R2_predictivo","R2_ajustado_entrenamiento","AIC_escala_transformada"
+"M4_ambiental","raiz",6,10.0506038903849,13.2672638123949,-1.41809598582198,0.709265394211175,0.580776156095002,2189.29755798328

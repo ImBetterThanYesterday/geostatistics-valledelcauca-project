@@ -1,0 +1,4 @@
+"categoria","anio","banda","n_filas","n_celdas","duplicados_id","duplicados_xy","nulos","precip_negativa","temp_fuera_rango","rad_fuera_rango","altitud_min","altitud_max"
+"seca",2020,29,686,686,0,0,0,0,0,0,-2.9171736240387,3856.46630859375
+"intermedia",2014,38,686,686,0,0,0,0,0,0,-2.9171736240387,3856.46630859375
+"humeda",2019,46,686,686,0,0,0,0,0,0,-2.9171736240387,3856.46630859375

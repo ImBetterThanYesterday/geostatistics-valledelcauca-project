@@ -624,3 +624,102 @@ mejor la asimetría descriptiva. Temperatura y climatología de temperatura
 presentaron VIF mayor que 20, por lo que no se incluirán juntas sin comparación
 formal. Ninguno de estos diagnósticos constituye todavía selección definitiva
 de modelo.
+
+## H-020 — Alineación con el material de clase hasta semana 5
+
+La actividad y los ejemplos del profesor confirman el flujo: definir una
+variable espacial, ajustar tendencia, usar residuales para el semivariograma,
+comparar exponencial/esférico/gaussiano, kriging y validación leave-one-out. La
+actividad pide comparar el promedio de una ventana temporal con una semana
+individual. Se corrige la propuesta previa: cinco bloques no son requisito; LOO
+por puntos será la validación principal y bloques quedarán como sensibilidad
+opcional. No se ajustará un proceso espacio-temporal. La revisión completa quedó
+en `REVISION_CONTEXTO_CLASE_WEEK5.md`.
+
+## H-021 — Corrección: no promediar las 832 bandas como respuesta principal
+
+El enunciado define precipitación semanal y el profesor indicó explícitamente
+no promediar todas las capas. Se retira la media 2010–2025 como análisis
+principal. La ruta propuesta es trabajar cortes semanales reales por separado,
+con temperatura y radiación del mismo corte, sin formar pares temporales. La
+literatura revisada respalda modelos por corte, variogramas espaciales promedio
+entre réplicas comparables y climatologías como fondo residual. Esta última se
+usaría excluyendo el año objetivo para evitar fuga de información. Detalles y
+fuentes: `INVESTIGACION_ENFOQUE_ESPACIAL_DATOS_SEMANALES.md`.
+
+## H-020 — Reinicio correcto de la fase espacial: punto 0
+
+Se retiró de la ruta activa `02_Analisis_Geoespacial.R` porque avanzaba a Moran,
+variograma exponencial y kriging antes de seleccionar y validar el modelo de
+media. Se conserva como `02_Analisis_Geoespacial_prematuro.R` en el archivo
+histórico. El nuevo `02_00_Cierre_Decisiones_Espaciales.R` verificó integridad
+diaria 2010–2025, año 2025 completo y la regla de 52 bloques. CHIRPS 2024
+confirmó que la banda 52 usa días 358–364 y excluye 365–366. Queda pendiente
+aprobar el diseño exacto de validación antes de ajustar modelos.
+
+## H-022 — Selección reproducible de cortes espaciales semanales
+
+Para respetar el análisis exclusivamente espacial y la indicación de no
+promediar todas las capas, se creó `02_01_Seleccion_Cortes_Espaciales.R`.
+El dataset se resume por cada combinación año–banda (832 cortes) únicamente
+para calcular la precipitación media sobre las 686 celdas. Con una regla fijada
+antes de modelar se seleccionan los cortes más cercanos a los percentiles 10,
+50 y 90: 2020-banda 29 (seco), 2014-banda 38 (intermedio) y 2019-banda 46
+(húmedo). La modelación posterior conserva las 686 observaciones de cada corte
+y utiliza las covariables del mismo año y banda; no se mezclan tiempos ni se
+usa la media 2010–2025 como respuesta.
+
+Los productos reproducibles quedan en `cortes_espaciales_resultados/`:
+tabla de los 832 cortes, tabla de los tres seleccionados, los tres data frames
+espaciales en RDS y un PDF de control visual.
+
+## H-023 — Fases 1 y 2: control y EDA espacial de los tres cortes
+
+Se creó `03_EDA_Espacial_Cortes.R`. Para los cortes seco (2020-banda 29),
+intermedio (2014-banda 38) y húmedo (2019-banda 46) se comprobó que cada uno
+tiene 686 celdas, sin identificadores ni coordenadas duplicadas, sin nulos, sin
+precipitación negativa y sin temperatura o radiación fuera de rango. El script
+genera mapas de precipitación, altitud, temperatura y radiación, además de
+gráficos de relaciones bivariadas y distribuciones. Los resultados quedan en
+`eda_espacial_resultados/`. Aún no se han ajustado modelos ni semivariogramas.
+
+## H-024 — EDA espacial detallado del corte piloto
+
+Se creó `04_EDA_Espacial_Piloto_Profesor.R` para seguir la secuencia de los
+ejemplos de clase sobre 2014-banda 38: distribución de precipitación, mapas de
+posting, asociaciones con longitud, latitud, altitud y temperatura, tendencia
+lineal preliminar en coordenadas, mapa de residuales y correlaciones. El ajuste
+de tendencia es exploratorio y no constituye todavía el modelo final. El
+script genera `EDA_espacial_piloto_detallado.pdf` y tablas de estadísticos,
+tendencia y residuales en `eda_espacial_resultados/`. El semivariograma y el
+kriging siguen pendientes hasta interpretar estos gráficos.
+
+Posteriormente se amplió el script para incluir explícitamente el gráfico de
+precipitación contra radiación y una página adicional con mapas y relaciones
+de las tres climatologías. En el corte piloto, la precipitación correlaciona
+0,867 con su climatología, mientras que temperatura actual y climatológica son
+casi redundantes (correlación 0,999); por ello no se incluirán juntas sin una
+comparación de validación y control de colinealidad.
+
+## H-025 — Modelos de media y validación LOO del corte piloto
+
+Se creó `05_Modelos_Media_Piloto.R` para comparar modelos progresivos con
+precipitación original, raíz cuadrada y `log1p`, evaluados mediante leave-one-
+out por las 686 celdas. La comparación se realiza en milímetros originales.
+El modelo con climatología de precipitación obtuvo RMSE artificialmente menor,
+pero se excluye como ganador principal porque esa climatología incluye el año
+2014 objetivo (fuga de información). Sin esa variable, el mejor resultado
+provisional fue el modelo ambiental (coordenadas, altitud, temperatura y
+radiación) con respuesta raíz cuadrada: MAE 10,05 mm, RMSE 13,27 mm y R²
+predictivo 0,709. Estos resultados son preliminares: falta revisar residuales y
+comprobar dependencia espacial antes de construir el semivariograma.
+
+## H-026 — Dependencia espacial de los residuales del corte piloto
+
+Se creó `06_Diagnostico_Residual_Espacial_Piloto.R`. Moran se calculó con
+vecindades de 4 y 8 celdas. Los residuales del modelo ambiental presentan
+autocorrelación positiva muy fuerte (I = 0,774 con 4 vecinos; I = 0,719 con 8;
+p < 0,001 en ambos casos). La precipitación cruda también tiene autocorrelación
+alta (I = 0,931 y 0,913). Por tanto, la tendencia ambiental no elimina la
+estructura espacial: está justificado pasar al semivariograma empírico de los
+residuales. La sensibilidad a la definición de vecinos no cambia la decisión.

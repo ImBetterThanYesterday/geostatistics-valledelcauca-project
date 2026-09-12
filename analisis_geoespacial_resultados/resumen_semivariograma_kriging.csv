@@ -1,0 +1,5 @@
+"anio","semana","temporada","precip_media","R2_tendencia","nugget","sill","rango_km","RMSE_mm","MAE_mm","RMSE_relativo_pct"
+2015,18,"lluvia (may)",41.2,0.721,0,240.92,142.2,2.61,1.9,6.3
+2020,44,"lluvia (nov)",65.7,0.663,0,954.85,92,5.15,3.4,7.8
+2016,5,"seca (feb)",2.6,0.035,0,95.13,27.5,3.59,1.21,137.9
+2021,32,"seca (ago)",35.8,0.794,0,536.75,76.8,5.96,3.71,16.6

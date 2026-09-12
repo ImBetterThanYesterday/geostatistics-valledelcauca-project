@@ -18,6 +18,10 @@ este orden:
 El punto actual del proyecto termina al ejecutar `EDA_final.R`. El EDA espacial,
 Moran, semivariogramas y modelos no forman parte todavía de esta entrega.
 
+La siguiente fase comienza con `02_00_Cierre_Decisiones_Espaciales.R`. Este
+archivo solo audita y fija las decisiones de entrada; todavía no calcula Moran,
+variogramas ni kriging.
+
 ## Cómo ejecutar
 
 Abra la carpeta raíz `Proyecto1` en RStudio. No hace falta usar `setwd()`:
