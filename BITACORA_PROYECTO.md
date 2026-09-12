@@ -557,6 +557,107 @@ residuales después de definir la media.
 
 ---
 
+## H-031 — Checkpoint del algoritmo por año y banda
+
+**Fecha:** 2026-09-12 — **Tipo:** prueba de automatización — **Estado:** pendiente de aprobación
+
+Se ejecutaron 104 cortes independientes (2010–2011, 52 bandas por año), sin
+promediar observaciones y sin incorporar climatologías. Cada corte contiene las
+686 celdas del soporte común. La respuesta fue precipitación; temperatura,
+radiación, altitud y coordenadas solo fueron candidatas a explicar la tendencia.
+
+No hubo fallos de control de calidad. En los 104 cortes Moran residual fue
+positivo y significativo, por lo que todos alcanzaron la fase de variograma.
+El algoritmo eligió provisionalmente kriging en 100 cortes y retuvo MCO por
+inestabilidad numérica de kriging en 4. Estos resultados no son finales: la
+validación de kriging usa LOO con variograma fijado usando todo el corte y puede
+ser optimista.
+
+Hallazgo decisivo: los modelos que incluían simultáneamente coordenadas,
+altitud, temperatura y radiación excedieron VIF = 10 en todos los cortes y por
+ello no fueron candidatos válidos. Antes de ejecutar 2012–2025 se deben probar
+modelos ambientales alternativos con temperatura y radiación por separado, y
+revisar las alertas de anisotropía y los alcances de variograma mal identificados.
+
+**Archivos:** `11_Lote_Modelos_Espaciales_Checkpoint.R`,
+`ARBOL_DECISIONES_LOTE_832.md` y
+`lote_espacial_checkpoint_2010_2011/REPORTE_CHECKPOINT_2010_2011.md`.
+
+---
+
+## D-007 — Modelos y semivariogramas del lote final
+
+**Fecha:** 2026-09-12 — **Estado:** aprobados para implementación base R
+
+La revisión de `Actividad_1`, `Actividad_2`, las diapositivas y los ejemplos
+del profesor confirmó que el proyecto sí exige precipitación en función de
+covariables ambientales y que el camino MCO → semivariograma residual → matriz
+de covarianza → MCG → kriging se trabajó en clase. Se definen seis modelos de
+media candidatos: M0, Mxy, Malt, MT, MR y Mxy_alt. Temperatura y radiación se
+prueban separadamente; no se usan climatologías ni combinaciones ambientales
+grandes antes de demostrar aporte individual y ausencia de colinealidad.
+
+Para cada residual se compararán los semivariogramas exponencial, esférico y
+gaussiano. Matérn y anisotropía quedan como análisis específicos posteriores,
+no como una selección automática. El archivo final no podrá usar `gstat` ni
+`spdep`, pues el enunciado permite librerías adicionales solo para gráficos o
+carga de mapas/Excel. El checkpoint anterior conserva valor exploratorio, pero
+la entrega implementará distancias, variograma, covarianza, MCG y kriging con
+R base.
+
+**Archivo:** `AUDITORIA_METODOLOGICA_PRELOTE.md`.
+
+---
+
+## D-008 — Paso obligatorio de MCO a MCG
+
+**Fecha:** 2026-09-12 — **Estado:** aprobado para implementación
+
+Por cada corte, el modelo de media se ajustará primero por MCO. Si sus
+residuales muestran estructura espacial y el semivariograma residual ajustado
+aporta una covarianza válida, se construirá la matriz `Sigma` y se reestimará
+la misma fórmula por MCG/GLS. Se guardarán las diferencias de coeficientes y
+errores estándar antes de hacer kriging. MCG no es otro conjunto de covariables:
+es el mismo modelo que reconoce dependencia entre sus errores.
+
+**Archivos:** `ARBOL_DECISIONES_LOTE_832.md` y
+`AUDITORIA_METODOLOGICA_PRELOTE.md`.
+
+---
+
+## D-009 — Checkpoints del lote completo
+
+**Fecha:** 2026-09-12 — **Estado:** aprobado para ejecución
+
+La ejecución se divide en C0 (tres cortes de equivalencia), C1 (2010 completo)
+y C2 (2011–2025). El proceso guarda resultados cada diez cortes y resúmenes
+anuales. Solo se pausa ante evidencia de errores de datos o implementación,
+no porque un modelo estadístico particular gane. Se agregan controles vistos en
+clase: coordenadas en km, lags y pares, MCO/MCP del semivariograma con inicios
+múltiples, nugget puro, positividad definida de Sigma y varianza de predicción.
+
+**Archivo:** `PLAN_CHECKPOINTS_LOTE_832.md`.
+
+---
+
+## D-010 — Exclusión de tendencia espacial cuadrática
+
+**Fecha:** 2026-09-12 — **Estado:** aprobada
+
+Se retiraron de todos los scripts y del árbol los modelos con `x²`, `y²` y
+`x·y`. Aunque estos modelos habían ganado el C0 exploratorio, no forman parte
+de los ejemplos aplicados vistos en clase. El proyecto exige ceñirse a scripts,
+procedimientos y metodologías trabajadas por el profesor; por tanto, el C0
+anterior queda invalidado como selección de modelo y se repetirá usando solo
+tendencias lineales y covariables ambientales aprobadas.
+
+**Archivos:** `12_Lote_Espacial_BaseR.R`,
+`11_Lote_Modelos_Espaciales_Checkpoint.R`,
+`ARBOL_DECISIONES_LOTE_832.md` y
+`AUDITORIA_METODOLOGICA_PRELOTE.md`.
+
+---
+
 # 10. Plantilla de futuras entradas
 
 ```text
