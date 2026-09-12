@@ -714,6 +714,18 @@ radiación) con respuesta raíz cuadrada: MAE 10,05 mm, RMSE 13,27 mm y R²
 predictivo 0,709. Estos resultados son preliminares: falta revisar residuales y
 comprobar dependencia espacial antes de construir el semivariograma.
 
+## H-027 — Semivariograma empírico de residuales del corte piloto
+
+Se creó `07_Semivariograma_Residual_Piloto.R` usando los residuales de la raíz
+cuadrada del modelo ambiental. Se calcularon 15 intervalos de distancia en
+kilómetros y se compararon modelos exponencial, esférico y gaussiano. El ajuste
+esférico obtuvo el menor SSE ponderado (2,656), seguido del exponencial (4,631)
+y gaussiano (5,430). Sin embargo, el semivariograma empírico sube hasta unos
+50–70 km y luego desciende, en lugar de estabilizarse; esto sugiere que la
+tendencia media todavía puede ser incompleta o que hay anisotropía/efectos de
+borde. Por tanto, el esférico es solo un candidato provisional: antes de usarlo
+en kriging se debe revisar el gráfico y comparar una tendencia más flexible.
+
 ## H-026 — Dependencia espacial de los residuales del corte piloto
 
 Se creó `06_Diagnostico_Residual_Espacial_Piloto.R`. Moran se calculó con
@@ -723,3 +735,31 @@ p < 0,001 en ambos casos). La precipitación cruda también tiene autocorrelaci�
 alta (I = 0,931 y 0,913). Por tanto, la tendencia ambiental no elimina la
 estructura espacial: está justificado pasar al semivariograma empírico de los
 residuales. La sensibilidad a la definición de vecinos no cambia la decisión.
+## H-028 — Tendencia espacial cuadrática del corte piloto
+
+Se creó `08_Tendencia_Flexible_Piloto.R` para comparar la tendencia ambiental
+lineal con una versión que agrega curvaturas e interacción de las coordenadas.
+La tendencia cuadrática mejoró la validación LOO (RMSE 12,02 frente a 13,27 mm;
+MAE 9,15 frente a 10,05 mm) y redujo, aunque no eliminó, Moran residual (I =
+0,716 con 4 vecinos y 0,644 con 8, ambos significativos). Por tanto, se
+adopta provisionalmente la tendencia cuadrática como media candidata para el
+semivariograma; todavía queda dependencia espacial y no se ha hecho kriging.
+## H-029 — Semivariograma con tendencia cuadrática
+
+Se creó `09_Semivariograma_Cuadratico_Piloto.R`. Al quitar la tendencia
+cuadrática, el ajuste esférico sigue siendo el mejor (SSE 1,810; alcance
+aproximado 36,3 km), seguido del exponencial (SSE 2,880; 15,9 km) y gaussiano
+(SSE 3,155; 16,0 km). El semivariograma residual conserva dependencia, aunque
+la tendencia cuadrática redujo su magnitud y el comportamiento posterior a
+70 km es menos dominante. El modelo esférico queda como candidato provisional;
+la decisión final dependerá de la validación del kriging.
+## H-030 — Comparación de kriging ordinario y universal del corte piloto
+
+Se creó `10_Kriging_Comparacion_Piloto.R` y se validaron ambos tipos mediante
+LOO usando el semivariograma esférico candidato. El kriging ordinario obtuvo
+MAE 3,70 mm y RMSE 5,17 mm; el universal obtuvo MAE 3,78 mm y RMSE 5,38 mm.
+En este corte el ordinario fue ligeramente mejor, aunque el universal tuvo menor
+sesgo. Estos valores son exploratorios porque el semivariograma se fijó usando
+el conjunto completo; para la comparación final se debe repetir el ajuste del
+variograma dentro de cada partición de validación o declarar explícitamente
+esta limitación.

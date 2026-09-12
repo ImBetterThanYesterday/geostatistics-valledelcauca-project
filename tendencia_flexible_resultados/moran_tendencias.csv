@@ -1,0 +1,5 @@
+"modelo","vecinos","moran_I","p_valor"
+"lineal_ambiental",4,0.774563435393547,8.0354642848759e-191
+"lineal_ambiental",8,0.719497538075323,0
+"cuadratica_ambiental",4,0.716325464938157,1.81554885048903e-163
+"cuadratica_ambiental",8,0.643967875754761,3.57767481137414e-265
